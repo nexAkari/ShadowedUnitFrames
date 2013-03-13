@@ -23,6 +23,8 @@ local function OnLeave(frame)
 end
 
 function Highlight:OnEnable(frame)
+	local sz = ShadowUF.db.profile.units[frame.unitType].highlight.size * 0.5
+
 	if( not frame.highlight ) then
 		frame.highlight = CreateFrame("Frame", nil, frame)
 		frame.highlight:SetFrameLevel(frame.topFrameLevel)
@@ -34,25 +36,25 @@ function Highlight:OnEnable(frame)
 		frame.highlight.top:SetTexture("Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\highlight")
 		frame.highlight.top:SetPoint("TOPLEFT", frame, ShadowUF.db.profile.backdrop.inset, -ShadowUF.db.profile.backdrop.inset)
 		frame.highlight.top:SetPoint("TOPRIGHT", frame, -ShadowUF.db.profile.backdrop.inset, ShadowUF.db.profile.backdrop.inset)
-		frame.highlight.top:SetHeight(30)
+		frame.highlight.top:SetHeight(sz)
 		frame.highlight.top:SetTexCoord(0.3125, 0.625, 0, 0.3125)
 		frame.highlight.top:SetHorizTile(false)
 		
 		frame.highlight.left = frame.highlight:CreateTexture(nil, "OVERLAY")
 		frame.highlight.left:SetBlendMode("ADD")
 		frame.highlight.left:SetTexture("Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\highlight")
-		frame.highlight.left:SetPoint("TOPLEFT", frame, ShadowUF.db.profile.backdrop.inset, -ShadowUF.db.profile.backdrop.inset)
-		frame.highlight.left:SetPoint("BOTTOMLEFT", frame, -ShadowUF.db.profile.backdrop.inset, ShadowUF.db.profile.backdrop.inset)
-		frame.highlight.left:SetWidth(30)
+		frame.highlight.left:SetPoint("TOPLEFT", frame, ShadowUF.db.profile.backdrop.inset, -ShadowUF.db.profile.backdrop.inset - sz)
+		frame.highlight.left:SetPoint("BOTTOMLEFT", frame, -ShadowUF.db.profile.backdrop.inset, ShadowUF.db.profile.backdrop.inset + sz)
+		frame.highlight.left:SetWidth(sz)
 		frame.highlight.left:SetTexCoord(0, 0.3125, 0.3125, 0.625)
 		frame.highlight.left:SetHorizTile(false)
 
 		frame.highlight.right = frame.highlight:CreateTexture(nil, "OVERLAY")
 		frame.highlight.right:SetBlendMode("ADD")
 		frame.highlight.right:SetTexture("Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\highlight")
-		frame.highlight.right:SetPoint("TOPRIGHT", frame, -ShadowUF.db.profile.backdrop.inset, -ShadowUF.db.profile.backdrop.inset)
-		frame.highlight.right:SetPoint("BOTTOMRIGHT", frame, 0, ShadowUF.db.profile.backdrop.inset)
-		frame.highlight.right:SetWidth(30)
+		frame.highlight.right:SetPoint("TOPRIGHT", frame, -ShadowUF.db.profile.backdrop.inset, -ShadowUF.db.profile.backdrop.inset - sz)
+		frame.highlight.right:SetPoint("BOTTOMRIGHT", frame, 0, ShadowUF.db.profile.backdrop.inset + sz)
+		frame.highlight.right:SetWidth(sz)
 		frame.highlight.right:SetTexCoord(0.625, 0.93, 0.3125, 0.625)
 		frame.highlight.right:SetHorizTile(false)
 
@@ -61,17 +63,11 @@ function Highlight:OnEnable(frame)
 		frame.highlight.bottom:SetTexture("Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\highlight")
 		frame.highlight.bottom:SetPoint("BOTTOMLEFT", frame, ShadowUF.db.profile.backdrop.inset, ShadowUF.db.profile.backdrop.inset)
 		frame.highlight.bottom:SetPoint("BOTTOMRIGHT", frame, -ShadowUF.db.profile.backdrop.inset, ShadowUF.db.profile.backdrop.inset)
-		frame.highlight.bottom:SetHeight(30)
+		frame.highlight.bottom:SetHeight(sz)
 		frame.highlight.bottom:SetTexCoord(0.3125, 0.625, 0.625, 0.93)
 		frame.highlight.bottom:SetHorizTile(false)
 		frame.highlight:Hide()
 	end
-	
-	frame.highlight.top:SetHeight(ShadowUF.db.profile.units[frame.unitType].highlight.size)
-	frame.highlight.bottom:SetHeight(ShadowUF.db.profile.units[frame.unitType].highlight.size)
-	frame.highlight.left:SetWidth(ShadowUF.db.profile.units[frame.unitType].highlight.size)
-	frame.highlight.right:SetWidth(ShadowUF.db.profile.units[frame.unitType].highlight.size)
-	
 	
 	if( ShadowUF.db.profile.units[frame.unitType].highlight.aggro ) then
 		frame:RegisterUnitEvent("UNIT_THREAT_SITUATION_UPDATE", self, "UpdateThreat")
