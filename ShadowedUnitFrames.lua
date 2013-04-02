@@ -5,7 +5,7 @@
 ShadowUF = select(2, ...)
 
 local L = ShadowUF.L
-ShadowUF.dbRevision = 34
+ShadowUF.dbRevision = 35
 ShadowUF.playerUnit = "player"
 ShadowUF.enabledUnits = {}
 ShadowUF.modules = {}
@@ -630,9 +630,15 @@ local function hideBlizzardFrames(taint, ...)
 		frame:UnregisterAllEvents()
 		frame:Hide()
 
+		if( frame.manabar ) then frame.manabar:UnregisterAllEvents() end
+		if( frame.healthbar ) then frame.healthbar:UnregisterAllEvents() end
+		if( frame.spellbar ) then frame.spellbar:UnregisterAllEvents() end
+		if( frame.powerBarAlt ) then frame.powerBarAlt:UnregisterAllEvents() end
+
 		if( taint ) then
 			frame.Show = ShadowUF.noop
 		else
+			frame:SetParent(ShadowUF.hiddenFrame)
 			frame:HookScript("OnShow", rehideFrame)
 		end
 	end
@@ -695,29 +701,32 @@ function ShadowUF:HideBlizzardFrames()
 	end
 	
 	if( self.db.profile.hidden.player and not active_hiddens.player ) then
-		hideBlizzardFrames(false, PlayerFrame, PlayerFrameHealthBar, PlayerFrameManaBar, PlayerFrameAlternateManaBar)
+		hideBlizzardFrames(false, PlayerFrame, PlayerFrameAlternateManaBar)
 			
 		-- We keep these in case someone is still using the default auras, otherwise it messes up vehicle stuff
+		PlayerFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 		PlayerFrame:RegisterEvent("UNIT_ENTERING_VEHICLE")
 		PlayerFrame:RegisterEvent("UNIT_ENTERED_VEHICLE")
 		PlayerFrame:RegisterEvent("UNIT_EXITING_VEHICLE")
 		PlayerFrame:RegisterEvent("UNIT_EXITED_VEHICLE")
+		PlayerFrame:SetUserPlaced(true)
+		PlayerFrame:SetDontSavePosition(true)
 	end
 
 	if( self.db.profile.hidden.playerPower and not active_hiddens.playerPower ) then
-		hideBlizzardFrames(true, EclipseBarFrame, ShardBarFrame, RuneFrame, TotemFrame, PaladinPowerBar, MonkHarmonyBar, PriestBarFrame, WarlockPowerFrame)
+		hideBlizzardFrames(false, EclipseBarFrame, ShardBarFrame, RuneFrame, PaladinPowerBar, MonkHarmonyBar, PriestBarFrame, WarlockPowerFrame)
 	end
 
 	if( self.db.profile.hidden.pet and not active_hiddens.pet ) then
-		hideBlizzardFrames(false, PetFrame, PetFrameHealthBar, PetFrameManaBar)
+		hideBlizzardFrames(false, PetFrame)
 	end
 	
 	if( self.db.profile.hidden.target and not active_hiddens.target ) then
-		hideBlizzardFrames(false, TargetFrame, TargetFrameHealthBar, TargetFrameManaBar, TargetFrameSpellBar, ComboFrame, TargetFrameToT)
+		hideBlizzardFrames(false, TargetFrame, ComboFrame, TargetFrameToT)
 	end
 	
 	if( self.db.profile.hidden.focus and not active_hiddens.focus ) then
-		hideBlizzardFrames(false, FocusFrame, FocusFrameHealthBar, FocusFrameManaBar, FocusFrameSpellBar, FocusFrameToT)
+		hideBlizzardFrames(false, FocusFrame, FocusFrameToT)
 	end
 		
 	if( self.db.profile.hidden.boss and not active_hiddens.boss ) then

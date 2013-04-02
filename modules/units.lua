@@ -569,9 +569,7 @@ OnAttributeChanged = function(self, name, unit)
 	
 	-- Update boss
 	elseif( self.unitType == "boss" ) then
-		self.timeElapsed = 0
-		self:SetScript("OnUpdate", TargetUnitUpdate)
-		self:RegisterNormalEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", self, "FullUpdate")
+		self:RegisterNormalEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", Units, "CheckUnitStatus")
 
 	-- Check for a unit guid to do a full update
 	elseif( self.unitRealType == "raid" ) then
@@ -579,12 +577,6 @@ OnAttributeChanged = function(self, name, unit)
 		self:RegisterUnitEvent("UNIT_NAME_UPDATE", Units, "CheckUnitStatus")
 		
 		self.menu = ShowMenu
-
-		stateMonitor:WrapScript(self, "OnAttributeChanged", [[
-			if( value == "togglemenu" and self:GetAttribute("clique-shiv") == "1" ) then
-				self:SetAttribute(name, "menu")
-			end
-		]])
 
 	-- Party members need to watch for changes
 	elseif( self.unitRealType == "party" ) then
@@ -635,6 +627,7 @@ local secureInitializeUnit = [[
 
 	self:SetAttribute("*type1", "target")
 	self:SetAttribute("*type2", "togglemenu")
+	self:SetAttribute("type2", "togglemenu")
 
 	self:SetAttribute("isHeaderDriven", true)
 
@@ -646,16 +639,6 @@ local secureInitializeUnit = [[
 	if( clickHeader ) then
 		clickHeader:SetAttribute("clickcast_button", self)
 		clickHeader:RunAttribute("clickcast_register")
-
-		-- Because we gsub togglemenu -> menu, we can do this check
-		-- to determine whether we're using togglemenu or not
-		if( "togglemenu" == "menu" ) then
-			self:SetAttribute("clique-shiv", "1")
-			if( self:GetAttribute("type2") == ("toggle" .. "menu") ) then
-				print("Initial force")
-				self:SetAttribute("type2", "menu")
-			end
-		end
 	end
 ]]
 
@@ -729,7 +712,7 @@ function Units:CreateUnit(...)
 
 	frame:RegisterForClicks("AnyUp")
 	-- non-header frames don't set those, so we need to do it
-	if( not InCombatLockdown() ) then
+	if( not InCombatLockdown() and not frame:GetAttribute("isHeaderDriven") ) then
 		frame:SetAttribute("*type1", "target")
 		frame:SetAttribute("*type2", "togglemenu")
 	end
@@ -919,7 +902,7 @@ function Units:SetHeaderAttributes(frame, type)
 		end
 	end
 
-	if( not InCombatLockdown() and headerUnits[type] ) then
+	if( not InCombatLockdown() and headerUnits[type] and frame.shouldReset ) then
 		-- Children no longer have ClearAllPoints() called on them before they are repositioned
 		-- this tries to stop it from bugging out by clearing it then forcing it to reposition everything
 		local name = frame:GetName() .. "UnitButton"
@@ -938,6 +921,8 @@ function Units:SetHeaderAttributes(frame, type)
 			frame:Show()
 		end
 	end
+
+	frame.shouldReset = true
 end
 
 -- Load a single unit such as player, target, pet, etc
