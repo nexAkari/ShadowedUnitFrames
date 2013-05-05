@@ -624,6 +624,15 @@ local rehideFrame = function(self)
 	end
 end
 
+local function reparentHideBlizzardFrames(...)
+	for i=1, select("#", ...) do
+		local frame = select(i, ...)
+		frame:UnregisterAllEvents()
+		frame:HookScript("OnShow", rehideFrame)
+		frame:Hide()
+	end
+end
+
 local function hideBlizzardFrames(taint, ...)
 	for i=1, select("#", ...) do
 		local frame = select(i, ...)
@@ -714,7 +723,8 @@ function ShadowUF:HideBlizzardFrames()
 	end
 
 	if( self.db.profile.hidden.playerPower and not active_hiddens.playerPower ) then
-		hideBlizzardFrames(false, EclipseBarFrame, ShardBarFrame, RuneFrame, PaladinPowerBar, MonkHarmonyBar, PriestBarFrame, WarlockPowerFrame)
+		hideBlizzardFrames(false, EclipseBarFrame, ShardBarFrame, RuneFrame, MonkHarmonyBar, WarlockPowerFrame)
+		reparentHideBlizzardFrames(PriestBarFrame, PaladinPowerBar)
 	end
 
 	if( self.db.profile.hidden.pet and not active_hiddens.pet ) then
